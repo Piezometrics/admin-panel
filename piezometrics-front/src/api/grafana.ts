@@ -1,20 +1,45 @@
-// REPLACE IN PROD
-const BASE = 'http://localhost:8080/api';
+import { ApiError, apiRequest } from './client'
+import type { AuthUser, GrafanaOrg, GrafanaOrgUser, GrafanaUser } from '../types'
 
-export async function fetchUsers() {
-    const res = await fetch(`${BASE}/users`);
-    if (!res.ok) throw new Error(`Failed to fetch users: ${res.status} ${res.statusText}`);
-    return res.json();
+function normalizeAuthUser(raw: unknown): AuthUser {
+    const data = (raw as { user?: AuthUser }).user ?? (raw as AuthUser)
+    return {
+        id: data.id,
+        login: data.login,
+        email: data.email,
+        name: data.name || data.login,
+        isGrafanaAdmin: Boolean(data.isGrafanaAdmin),
+    }
 }
 
-export async function fetchOrgs() {
-    const res = await fetch(`${BASE}/orgs`);
-    if (!res.ok) throw new Error(`Failed to fetch orgs: ${res.status} ${res.statusText}`);
-    return res.json();
+export async function login(username: string, password: string): Promise<AuthUser> {
+    const res = await apiRequest<unknown>('/auth/login', {
+        service: 'grafana',
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+    })
+    return normalizeAuthUser(res)
 }
 
-export async function fetchOrgUsers(orgId: number) {
-    const res = await fetch(`${BASE}/orgs/${orgId}/users`);
-    if (!res.ok) throw new Error(`Failed to fetch org users: ${res.status} ${res.statusText}`);
-    return res.json();
+export async function fetchMe(): Promise<AuthUser> {
+    const res = await apiRequest<unknown>('/auth/me', { service: 'grafana' })
+    return normalizeAuthUser(res)
 }
+
+export async function logout(): Promise<void> {
+    await apiRequest('/auth/logout', { service: 'grafana', method: 'POST' })
+}
+
+export async function fetchUsers(): Promise<GrafanaUser[]> {
+    return apiRequest('/users', { service: 'grafana' })
+}
+
+export async function fetchOrgs(): Promise<GrafanaOrg[]> {
+    return apiRequest('/orgs', { service: 'grafana' })
+}
+
+export async function fetchOrgUsers(orgId: number): Promise<GrafanaOrgUser[]> {
+    return apiRequest(`/orgs/${orgId}/users`, { service: 'grafana' })
+}
+
+export { ApiError }

@@ -1,5 +1,14 @@
 package grafana
 
+type GrafanaCurrentUser struct {
+	ID             int    `json:"id"`
+	Login          string `json:"login"`
+	Email          string `json:"email"`
+	Name           string `json:"name"`
+	IsGrafanaAdmin bool   `json:"isGrafanaAdmin"`
+	IsDisabled     bool   `json:"isDisabled"`
+}
+
 type GrafanaUser struct {
 	ID            int      `json:"id"`
 	UID           string   `json:"uid"`

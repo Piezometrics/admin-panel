@@ -5,9 +5,10 @@ interface PaginationProps {
   totalPages: number
   totalItems: number
   onPage: (p: number) => void
+  itemLabel?: string
 }
 
-export function Pagination({ page, totalPages, totalItems, onPage }: PaginationProps) {
+export function Pagination({ page, totalPages, totalItems, onPage, itemLabel = 'пользователей' }: PaginationProps) {
   const PAGE_SIZE = 10
   const from = page * PAGE_SIZE + 1
   const to = Math.min((page + 1) * PAGE_SIZE, totalItems)
@@ -33,8 +34,8 @@ export function Pagination({ page, totalPages, totalItems, onPage }: PaginationP
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
       <span style={{ fontSize: 13, color: '#6B7280' }}>
         {totalItems === 0
-          ? 'Нет пользователей'
-          : `${from}–${to} из ${totalItems} пользователей`}
+          ? `Нет ${itemLabel}`
+          : `${from}–${to} из ${totalItems} ${itemLabel}`}
       </span>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

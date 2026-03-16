@@ -19,10 +19,8 @@ type Client struct {
 
 func NewClient(cfg *config.Config) *Client {
 	return &Client{
-		baseURL:  strings.TrimSuffix(cfg.GrafanaURL, "/"),
-		username: cfg.GrafanaUser,
-		password: cfg.GrafanaPassword,
-		client:   &http.Client{},
+		baseURL: strings.TrimSuffix(cfg.GrafanaURL, "/"),
+		client:  &http.Client{},
 	}
 }
 
@@ -131,4 +129,40 @@ func (c *Client) ListOrgUsers(orgID int) ([]GrafanaOrgUser, error) {
 	}
 
 	return users, nil
+}
+
+func (c *Client) WithCredentials(username, password string) *Client {
+	return &Client{
+		baseURL:  c.baseURL,
+		username: username,
+		password: password,
+		client:   c.client,
+	}
+}
+
+func (c *Client) GetCurrentUser() (*GrafanaCurrentUser, error) {
+	req, err := http.NewRequest("GET", c.baseURL+"/api/user", nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.SetBasicAuth(c.username, c.password)
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch current user: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("grafana returned status %d: %s", resp.StatusCode, string(body))
+	}
+
+	var me GrafanaCurrentUser
+	if err := json.NewDecoder(resp.Body).Decode(&me); err != nil {
+		return nil, fmt.Errorf("failed to decode current user: %w", err)
+	}
+
+	return &me, nil
 }

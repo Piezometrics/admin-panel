@@ -15,10 +15,11 @@ fetch_grafana_users/fetch_grafana_users
 
 # Editor / OS
 .DS_Store
-.vscode/settings.json
+.vscode
 .idea/
 *.swp
 *.swo
+
 
 # Logs
 *.log

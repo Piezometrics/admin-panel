@@ -1,17 +1,19 @@
-import { Settings, ChevronDown, Plus, ArrowLeft, LogOut, User } from 'lucide-react'
+import { Settings, ChevronDown, ArrowLeft, LogOut, User, Layers } from 'lucide-react'
+import type { AuthUser } from '../types'
 
 const NAV_ITEMS = [
-  { label: 'Админ-панель', icon: User },
-  // { label: 'Вопросы',   icon: FileText },
-  // { label: 'Договоры',  icon: FileText },
+  { key: 'users', label: 'Пользователи', icon: User },
+  { key: 'deposits', label: 'Месторождения', icon: Layers },
 ]
 
 interface SidebarProps {
   active: string
   setActive: (s: string) => void
+  user: AuthUser
+  onLogout: () => void
 }
 
-export function Sidebar({ active, setActive }: SidebarProps) {
+export function Sidebar({ active, setActive, user, onLogout }: SidebarProps) {
   return (
     <div style={{
       width: 250, minHeight: '100vh', background: '#0E2149',
@@ -22,24 +24,24 @@ export function Sidebar({ active, setActive }: SidebarProps) {
       <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#fff', fontSize: 13, fontWeight: 600 }}>
-            admin
+            {user.name || user.login}
             <ChevronDown size={12} />
           </div>
           <Settings size={14} color="rgba(255,255,255,0.5)" />
         </div>
         <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: 0.1 }}>
-          admin@localhost
+          {user.email}
         </div>
       </div>
 
       {/* Nav */}
       <nav style={{ padding: '12px 8px', flex: 1 }}>
-        {NAV_ITEMS.map(({ label, icon: Icon }) => {
-          const isActive = active === label
+        {NAV_ITEMS.map(({ key, label, icon: Icon }) => {
+          const isActive = active === key
           return (
             <button
-              key={label}
-              onClick={() => setActive(label)}
+              key={key}
+              onClick={() => setActive(key)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 width: '100%', padding: '9px 10px', borderRadius: 8,
@@ -55,17 +57,6 @@ export function Sidebar({ active, setActive }: SidebarProps) {
             </button>
           )
         })}
-
-        <button style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          width: '100%', marginTop: 16, padding: '7px 10px',
-          border: '1px dashed rgba(255,255,255,0.25)', borderRadius: 8,
-          background: 'transparent', color: 'rgba(255,255,255,0.55)',
-          cursor: 'pointer', fontSize: 12, fontFamily: 'inherit',
-        }}>
-          <Plus size={13} />
-          Добавить категорию
-        </button>
       </nav>
 
       {/* Bottom links */}
@@ -84,7 +75,9 @@ export function Sidebar({ active, setActive }: SidebarProps) {
             {label}
           </button>
         ))}
-        <button style={{
+        <button
+          onClick={onLogout}
+          style={{
           display: 'flex', alignItems: 'center', gap: 6,
           width: '100%', padding: '7px 10px', background: 'transparent',
           border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer',
