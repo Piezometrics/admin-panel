@@ -6,8 +6,6 @@ Create a file at `fetch_grafana_users/.env`:
 
 ```
 GRAFANA_URL=https://your-grafana-instance.com
-GRAFANA_USER=your@email.com
-GRAFANA_PASSWORD=yourpassword
 PORT=8080
 ```
 
@@ -27,3 +25,7 @@ npm run dev
 ```
 
 Frontend runs on `http://localhost:5173`, backend on `http://localhost:8080`.
+
+### 4. Login
+
+Open the frontend in your browser and log in with your ADMIN Grafana credentials. The app uses Grafana's authentication system.
